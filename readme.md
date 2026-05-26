@@ -16,7 +16,7 @@ Noise2Void (N2V) 是一种自监督图像去噪方法。它的核心思想是：
 # 项目结构
 
 
-
+```shell
 Noise2Void-pytorch-implementation/
 ├── config.yaml          # 训练/推理配置
 ├── train.py             # 训练主脚本 + loss 函数
@@ -29,6 +29,7 @@ Noise2Void-pytorch-implementation/
 ├── checkpoints/         # 保存权重
 ├── outputs/             # 推理输出
 └── results/             # loss 记录
+```
 
 # 核心设计
 
