@@ -65,28 +65,46 @@ class Noise2VoidDataset(Dataset):
     
     # 随机选择盲点并替换像素值
     def blind_spot_mask(self, img, blind_ratio=0.02, neighborhood_radius=5):
+        # 获取图像的高度、宽度、通道数
         h, w, c = img.shape
+        # 计算需要挖盲点的数量（至少1个），blind_ratio默认为0.02即2%
         n_blind = max(1, int(h * w * blind_ratio))
 
+        # 生成所有像素位置索引 [0, 1, 2, ..., h*w-1]
         all_pos = np.arange(h * w)
+        # 从所有像素位置中随机选择n_blind个不重复的位置
         chosen = np.random.choice(all_pos, n_blind, replace=False)
+        # 将1D索引转换为2D坐标 (row, col)
         blind_h, blind_w = np.unravel_index(chosen, (h, w))
 
+        # 创建图像的深拷贝，用于作为source输入
         source = copy.deepcopy(img)
+        # 创建掩码矩阵，标记盲点位置，初始值为0
         mask = np.zeros((h, w, 1), dtype=np.float32)
 
+        # 遍历每个盲点位置
         for bh, bw in zip(blind_h, blind_w):
+            # 计算在盲点周围定义的邻域范围（行方向）：[r_min, r_max)
             r_min, r_max = max(0, bh - neighborhood_radius), min(h, bh + neighborhood_radius + 1)
+            # 计算在盲点周围定义的邻域范围（列方向）：[c_min, c_max)
             c_min, c_max = max(0, bw - neighborhood_radius), min(w, bw + neighborhood_radius + 1)
 
+            # 从邻域内随机选择一个行坐标
             nh = np.random.randint(r_min, r_max)
+            # 从邻域内随机选择一个列坐标
             nw = np.random.randint(c_min, c_max)
+            # 确保选中的邻域像素不是盲点本身
             while nh == bh and nw == bw:
+                # 如果选中的是盲点本身，重新随机选择行坐标
                 nh = np.random.randint(r_min, r_max)
+                # 重新随机选择列坐标
                 nw = np.random.randint(c_min, c_max)
 
+            # 将source中盲点位置的像素替换为邻域内的随机像素值
             source[bh, bw, :] = img[nh, nw, :]
+            # 在掩码中标记该盲点位置为1.0
             mask[bh, bw, :] = 1.0
 
+        # 返回三个值：修改后的图像source、原始图像img作为target、记录盲点位置的mask
         return source, img, mask
       
