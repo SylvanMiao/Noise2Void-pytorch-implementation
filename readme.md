@@ -57,5 +57,14 @@ Noise2Void-pytorch-implementation/
   训练:
     data/*.png → random_crop(64×64) → blind_spot_mask(2%像素) → U-Net → MSE(masked only) → 反向传播
 
+    脚本使用方法：
+    ```
+    python train.py --config config.yaml
+    ``` 
+
   推理:
     data/*.png → 全图送入 U-Net → sigmoid → clamp → 输出去噪结果
+    脚本使用方法：
+    ```
+    python infer.py --config config.yaml
+    ``` 
